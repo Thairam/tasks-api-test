@@ -15,37 +15,54 @@ public class ApiTest {
   }
 
   @Test
-  public void deveRetornarTarefas(){
+  public void deveRetornarTarefas() {
     RestAssured.given()
-      .when()
+        .when()
         .get("/todo")
-      .then()
-        .statusCode(200)
-      ;
+        .then()
+        .statusCode(200);
   }
 
   @Test
-  public void deveAdicionarTarefaComSucesso(){
+  public void deveAdicionarTarefaComSucesso() {
     RestAssured.given()
-      .body("{ \"task\": \"Teste via API\", \"dueDate\": \"2099-07-21\" }")
-      .contentType(ContentType.JSON)
-    .when()
-      .post("/todo")
-    .then()
-      .statusCode(201)
-    ;    
+        .body("{ \"task\": \"Teste via API\", \"dueDate\": \"2099-07-21\" }")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("/todo")
+        .then()
+        .statusCode(201);
   }
 
   @Test
-  public void naoDeveAdicionarTarefaInvalida(){
+  public void naoDeveAdicionarTarefaInvalida() {
     RestAssured.given()
-      .body("{ \"task\": \"Teste via API\", \"dueDate\": \"2010-07-21\" }")
-      .contentType(ContentType.JSON)
-    .when()
-      .post("/todo")
-    .then()
-      .statusCode(400)
-      .body("message", CoreMatchers.is("Due date must not be in past"))
-    ;    
+        .body("{ \"task\": \"Teste via API\", \"dueDate\": \"2010-07-21\" }")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("/todo")
+        .then()
+        .statusCode(400)
+        .body("message", CoreMatchers.is("Due date must not be in past"));
+  }
+
+  @Test
+  public void deveRemoverTarefaComSucesso() {
+    // Inserir tarefa
+    Integer id = RestAssured.given()
+        .body("{ \"task\": \"Tarefa Teste\", \"dueDate\": \"2099-07-21\" }")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("/todo")
+        .then()
+        .statusCode(201)
+        .extract().path("id");
+
+    // Remover tarefa
+    RestAssured.given()
+        .when()
+        .delete("/todo/" + id)
+        .then()
+        .statusCode(204);
   }
 }
